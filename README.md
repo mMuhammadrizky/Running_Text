@@ -1,5 +1,8 @@
 # Kelompok
-
+| ![Alt Text](https://github.com/mMuhammadrizky/Running_Text/blob/main/Foto%20Kelompok/Muhammad%20Rizky.jpg) |
+| ---------------------------------------------------------------------------------------------------------- |
+| Muhammad Rizky                                                                                             |
+| 2104051                                                                                                    |
 
 # Langkah Membuat Text Berjalan di LCD 16×2 I2C ESP8266
 1. Persiapkan Alat dan Bahan
