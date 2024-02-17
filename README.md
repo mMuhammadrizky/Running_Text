@@ -11,6 +11,7 @@ https://github.com/mMuhammadrizky/Running_Text/commit/10d894ee44c5277db91376e6ad
 
 2. Wiring
 Rangkai Seperti gambar dibawah ini
+https://github.com/mMuhammadrizky/Running_Text/blob/e01f9716a247677605047afd4bd23536055d6a5d/img/wiring.png
 
 
 4. Program
