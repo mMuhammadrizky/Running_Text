@@ -13,9 +13,9 @@ https://github.com/mMuhammadrizky/Running_Text/commit/10d894ee44c5277db91376e6ad
 Rangkai Seperti gambar dibawah ini
 
 ![Alt Text](https://github.com/mMuhammadrizky/Running_Text/blob/main/img/wiring.png)
+
 ![Alt Text](https://github.com/mMuhammadrizky/Running_Text/blob/main/img/Untitled.png)
 
-https://github.com/mMuhammadrizky/Running_Text/blob/main/img/Untitled.png
 
 
 4. Program
