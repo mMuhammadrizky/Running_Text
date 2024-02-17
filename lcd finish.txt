@@ -1,0 +1,168 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClientSecureBearSSL.h>
+#include <memory>
+
+ESP8266WiFiMulti WiFiMulti;
+unsigned long lastDataFetchTimeRelay3 = 0;
+unsigned long lastDataFetchTimeRelay4 = 0;
+unsigned long lastBlinkTime = 0;
+bool isFirstLineOn = true;
+bool isBlinking = true;
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Alamat I2C dan ukuran LCD (16x2)
+String messageStatic = "pinjam dulu 100 "; // Pesan statis
+String messageDynamicRelay3 = ""; // Pesan dinamis dari relay3
+String messageDynamicRelay4 = ""; // Pesan dinamis dari relay4
+int scrollSpeed = 200; // Kecepatan perpindahan karakter (ms)
+int lcdWidth = 16; // Lebar LCD (16 karakter)
+int textPos = 0; // Posisi teks pada layar
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.mode(WIFI_STA);
+  WiFiMulti.addAP("iphone", "123iphone"); // Ganti dengan SSID dan password WiFi Anda
+  Serial.println("Connecting to WiFi...");
+
+  lcd.init(); // Inisialisasi LCD
+  lcd.backlight(); // Aktifkan backlight
+  lcd.setCursor(0, 0); // Posisi kursor ke baris 1, kolom 0
+  lcd.print(messageStatic.substring(0, lcdWidth)); // Cetak pesan awal
+}
+
+void loop() {
+  if ((WiFiMulti.run() == WL_CONNECTED)) {
+    unsigned long currentTime = millis();
+
+    // Ambil data setiap 3 detik dari relay3
+    if (currentTime - lastDataFetchTimeRelay3 >= 3000) {
+      std::unique_ptr<BearSSL::WiFiClientSecure> clientRelay3(new BearSSL::WiFiClientSecure);
+      clientRelay3->setInsecure();
+
+      HTTPClient httpsRelay3;
+      Serial.println("[HTTPS] Fetching data from relay3...");
+
+      const char *urlRelay3 = "https://arduino-b306c-default-rtdb.asia-southeast1.firebasedatabase.app/shome/relay3.json";
+
+      if (httpsRelay3.begin(*clientRelay3, urlRelay3)) { // HTTPS
+        Serial.println("[HTTPS] GET...");
+
+        int httpCodeRelay3 = httpsRelay3.GET();
+
+        if (httpCodeRelay3 > 0) {
+          Serial.printf("[HTTPS] GET... code: %d\n", httpCodeRelay3);
+
+          if (httpCodeRelay3 == HTTP_CODE_OK || httpCodeRelay3 == HTTP_CODE_MOVED_PERMANENTLY) {
+            String payloadRelay3 = httpsRelay3.getString();
+            payloadRelay3.remove(0, 1);
+            payloadRelay3.remove(payloadRelay3.length() - 1);
+            messageDynamicRelay3 = payloadRelay3;
+
+            lastDataFetchTimeRelay3 = currentTime;
+          }
+        } else {
+          Serial.printf("[HTTPS] GET... failed, error: %s\n", httpsRelay3.errorToString(httpCodeRelay3).c_str());
+        }
+
+        httpsRelay3.end();
+      } else {
+        Serial.printf("[HTTPS] Unable to connect\n");
+      }
+    }
+
+    // Ambil data setiap 3 detik dari relay4
+    if (currentTime - lastDataFetchTimeRelay4 >= 3000) {
+      std::unique_ptr<BearSSL::WiFiClientSecure> clientRelay4(new BearSSL::WiFiClientSecure);
+      clientRelay4->setInsecure();
+
+      HTTPClient httpsRelay4;
+      Serial.println("[HTTPS] Fetching data from relay4...");
+
+      const char *urlRelay4 = "https://arduino-b306c-default-rtdb.asia-southeast1.firebasedatabase.app/shome/relay4.json";
+
+      if (httpsRelay4.begin(*clientRelay4, urlRelay4)) { // HTTPS
+        Serial.println("[HTTPS] GET...");
+
+        int httpCodeRelay4 = httpsRelay4.GET();
+
+        if (httpCodeRelay4 > 0) {
+          Serial.printf("[HTTPS] GET... code: %d\n", httpCodeRelay4);
+
+          if (httpCodeRelay4 == HTTP_CODE_OK || httpCodeRelay4 == HTTP_CODE_MOVED_PERMANENTLY) {
+            String payloadRelay4 = httpsRelay4.getString();
+            payloadRelay4.remove(0, 1);
+            payloadRelay4.remove(payloadRelay4.length() - 1);
+            messageDynamicRelay4 = payloadRelay4;
+
+            lastDataFetchTimeRelay4 = currentTime;
+          }
+        } else {
+          Serial.printf("[HTTPS] GET... failed, error: %s\n", httpsRelay4.errorToString(httpCodeRelay4).c_str());
+        }
+
+        httpsRelay4.end();
+      } else {
+        Serial.printf("[HTTPS] Unable to connect\n");
+      }
+    }
+
+    // Tampilkan teks berkedip pada baris pertama
+    lcd.clear();
+    lcd.setCursor(0, 0);
+
+    if (isFirstLineOn) {
+      if (!messageDynamicRelay3.isEmpty()) {
+        if (textPos < messageDynamicRelay3.length()) {
+          lcd.print(messageDynamicRelay3.substring(textPos, textPos + lcdWidth));
+        } else {
+          int overflow = textPos - messageDynamicRelay3.length();
+          lcd.print(messageDynamicRelay3.substring(0, lcdWidth - overflow));
+          lcd.print(messageDynamicRelay4.substring(0, overflow));
+        }
+      } else {
+        lcd.print(messageStatic.substring(0, lcdWidth));
+      }
+    }
+
+    // Tampilkan teks berkedip pada baris kedua
+    lcd.setCursor(0, 1);
+
+    if (!isFirstLineOn) {
+      if (!messageDynamicRelay4.isEmpty()) {
+        if (textPos < messageDynamicRelay4.length()) {
+          lcd.print(messageDynamicRelay4.substring(textPos, textPos + lcdWidth));
+        } else {
+          textPos = 0;
+          lcd.print(messageDynamicRelay4.substring(textPos, textPos + lcdWidth));
+          textPos++;
+        }
+      } else {
+        lcd.print(messageStatic.substring(0, lcdWidth));
+      }
+    }
+
+    // Berkedip setiap detik sekali
+    if (currentTime - lastBlinkTime >= 1000) {
+      lastBlinkTime = currentTime;
+      isFirstLineOn = !isFirstLineOn;
+
+      // Ganti mode berkedip setiap 3 detik
+      if (isBlinking && (currentTime - lastBlinkTime >= 3000)) {
+        isBlinking = false;
+      } else if (!isBlinking && (currentTime - lastBlinkTime >= 1000)) {
+        isBlinking = true;
+        textPos = 0; // Reset posisi teks saat memulai berkedip kembali
+      }
+    }
+
+    // Berkedip setiap 1 detik saat isBlinking true
+    if (isBlinking) {
+      delay(500);
+    } else {
+      delay(scrollSpeed);
+    }
+  }
+}

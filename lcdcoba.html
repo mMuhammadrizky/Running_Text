@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Powered By Afzan</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  </head>
+  <body>
+    <div class="row">
+      <div class="col-md-12 text-center mt-5">
+        <h5>Control LCD IOT</h5>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 text-center mt-5">
+        <div class="status1">
+          <div id="status1" class="mb-3">Text lcd baris 1: Loading...</div>
+        </div>
+        <div class="status2">
+          <div id="status2" class="mb-3">Text lcd baris 2: Loading...</div>
+        </div>
+        <div class="baris1">
+          <input
+            type="text"
+            id="baris1Input"
+            class="mb-3"
+            name="baris1"
+            placeholder="Ubah baris 1"
+          />
+          <button class="btn btn-outline-danger" onclick="updateFirebase(1)">
+            Update baris 1
+          </button>
+        </div>
+        <div class="baris2">
+          <input
+            type="text"
+            id="baris2Input"
+            class="mb-3"
+            name="baris2"
+            placeholder="Ubah baris 2"
+          />
+          <button class="btn btn-outline-danger" onclick="updateFirebase(2)">
+            Update baris 2
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const statusDiv = document.getElementById("status1");
+      const statusDiv2 = document.getElementById("status2");
+      const baris1Input = document.getElementById("baris1Input");
+      const baris2Input = document.getElementById("baris2Input");
+      const firebaseURL3 =
+        "https://arduino-b306c-default-rtdb.asia-southeast1.firebasedatabase.app/shome/relay3";
+      const firebaseURL4 =
+        "https://arduino-b306c-default-rtdb.asia-southeast1.firebasedatabase.app/shome/relay4";
+
+      function fetchData() {
+        fetch(
+          "https://arduino-b306c-default-rtdb.asia-southeast1.firebasedatabase.app/shome/relay3.json"
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            statusDiv.textContent = `Text lcd baris 1: ${data}`;
+          })
+          .catch((error) => {
+            console.error("Error fetching Firebase value:", error);
+            statusDiv.textContent = "Status: Error fetching data";
+          });
+      }
+
+      function fetchData2() {
+        fetch(
+          "https://arduino-b306c-default-rtdb.asia-southeast1.firebasedatabase.app/shome/relay4.json"
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            statusDiv2.textContent = `Text lcd baris 2: ${data}`;
+          })
+          .catch((error) => {
+            console.error("Error fetching Firebase value:", error);
+            statusDiv2.textContent = "Status: Error fetching data";
+          });
+      }
+
+      function updateFirebase(baris) {
+        const inputValue = baris === 1 ? baris1Input.value : baris2Input.value;
+        const updateURL = baris === 1 ? firebaseURL3 : firebaseURL4;
+
+        $.ajax({
+          url: `${updateURL}.json`,
+          method: "PUT",
+          data: JSON.stringify(inputValue),
+          contentType: "application/json",
+          success: function () {
+            console.log(`Firebase value set to '${inputValue}'`);
+          },
+          error: function (error) {
+            console.error("Error updating Firebase value:", error);
+          },
+        });
+      }
+
+      fetchData();
+      fetchData2();
+      setInterval(fetchData, 2000);
+      setInterval(fetchData2, 2000);
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
