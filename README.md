@@ -10,6 +10,7 @@ https://github.com/mMuhammadrizky/Running_Text/commit/10d894ee44c5277db91376e6ad
    -  Komputer / Laptop yang sudah terinstal Arduino IDE 
 
 2. Wiring
+
 Rangkai Seperti gambar dibawah ini
 
 ![Alt Text](https://github.com/mMuhammadrizky/Running_Text/blob/main/img/wiring.png)
