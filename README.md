@@ -20,3 +20,7 @@ Rangkai Seperti gambar dibawah ini
 
 
 4. Program
+
+   - Codingan untuk apk NodeMCU [HERE]()
+   - codingan untuk mengontrol layar Running text [HERE]()
+
