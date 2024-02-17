@@ -17,10 +17,8 @@ Rangkai Seperti gambar dibawah ini
 
 ![Alt Text](https://github.com/mMuhammadrizky/Running_Text/blob/main/img/Untitled.png)
 
-
-
 4. Program
 
-   - Codingan untuk apk NodeMCU [HERE]()
-   - codingan untuk mengontrol layar Running text [HERE]()
+   - Codingan untuk apk NodeMCU [HERE](https://github.com/mMuhammadrizky/Running_Text/blob/main/lcd%20finish.txt)
+   - codingan untuk mengontrol layar Running text [HERE](https://github.com/mMuhammadrizky/Running_Text/blob/main/lcdcoba.html)
 
